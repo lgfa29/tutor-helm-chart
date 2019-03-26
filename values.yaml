@@ -10,8 +10,8 @@ image:
 nameOverride: ""
 fullnameOverride: ""
 
-activateIngress: false
-activateHttps: false
+activateIngress: true
+activateHttps: true
 
 certmanagerIssuer: letsencrypt
 
