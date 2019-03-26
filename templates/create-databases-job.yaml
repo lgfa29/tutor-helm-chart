@@ -34,10 +34,9 @@ spec:
           command:
             - "/bin/bash"
             - "-c"
-            - 'mysql  --user "$TUTOR_MYSQL_ROOT_USER"
+            - 'mysql  --user root
                       --password=$TUTOR_MYSQL_ROOT_PASSWORD
-                      --host "$TUTOR_MYSQL_HOST"
-                      --port "$TUTOR_MYSQL_PORT"
+                      --host $TUTOR_MYSQL_HOST
                       --execute "
                         CREATE DATABASE IF NOT EXISTS $TUTOR_OPENEDX_MYSQL_DATABASE;
                         GRANT ALL ON $TUTOR_OPENEDX_MYSQL_DATABASE.* TO \"$TUTOR_OPENEDX_MYSQL_USERNAME\"@\"%\" IDENTIFIED BY \"$TUTOR_OPENEDX_MYSQL_PASSWORD\";
