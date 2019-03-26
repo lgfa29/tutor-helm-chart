@@ -1,0 +1,23 @@
+# Default values for mongodb.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: mongo
+  tag: 3.2.16
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 27017
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

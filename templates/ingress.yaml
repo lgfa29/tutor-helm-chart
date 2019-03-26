@@ -1,0 +1,44 @@
+{{- if .Values.activateIngress -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ include "tutor.fullname" . }}
+  labels:
+    app.kubernetes.io/component: ingress
+    {{- include "tutor.common.labels" . | nindent 4 }}
+{{- if .Values.activateHttps }}
+  annotations:
+    ingress.bluemix.net/redirect-to-https: "True"
+{{- end }}
+spec:
+{{- if .Values.activateHttps }}
+  tls:
+    - hosts:
+        - {{ .Values.LMS_HOST }}
+        - {{ .Values.CMS_HOST }}
+        - preview.{{ .Values.LMS_HOST }}
+      secretName: {{ include "tutor.domainname" . }}-tls
+{{- end }}
+  rules:
+    - host: {{ .Values.LMS_HOST }}
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: {{ include "tutor.fullname" . }}-nginx
+              servicePort: 80
+    - host: {{ .Values.CMS_HOST }}
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: {{ include "tutor.fullname" . }}-nginx
+              servicePort: 80
+    - host: preview.{{ .Values.LMS_HOST }}
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: {{ include "tutor.fullname" . }}-nginx
+              servicePort: 80
+{{- end }}

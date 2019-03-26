@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "tutor.fullname" . }}
+data:
+{{- range (keys .Values) -}}
+{{- if eq . (. | snakecase | upper) -}}
+{{- $value := tpl ((index $.Values .) | toString) $ -}}
+{{ printf "TUTOR_%s: %s" . ($value | quote) | nindent 2 }}
+{{- end -}}
+{{- end -}}

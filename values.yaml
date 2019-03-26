@@ -1,0 +1,147 @@
+# Default values for tutor.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: laoqui/tutor
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+activateIngress: false
+activateHttps: false
+
+certmanagerIssuer: letsencrypt
+
+# Tutor configuration parameters
+LMS_HOST: www.myopenedx.com
+CMS_HOST: "studio.{{ .Values.LMS_HOST }}"
+PLATFORM_NAME: My Open edX
+CONTACT_EMAIL: "contact@{{ LMS_HOST }}"
+LANGUAGE_CODE: en
+SECRET_KEY: ""
+
+ACTIVATE_ELASTICSEARCH: true
+ACTIVATE_MONGODB: true
+ACTIVATE_MYSQL: true
+ACTIVATE_RABBITMQ: true
+ACTIVATE_HTTPS: false
+ACTIVATE_NOTES: false
+ACTIVATE_XQUEUE: false
+
+DOCKER_IMAGE_OPENEDX: regis/openedx:ironwood
+DOCKER_IMAGE_FORUM: regis/openedx-forum:ironwood
+DOCKER_IMAGE_NOTES: regis/openedx-notes:ironwood
+DOCKER_IMAGE_XQUEUE: regis/openedx-xqueue:ironwood
+DOCKER_IMAGE_NGINX: nginx:1.13
+
+ELASTICSEARCH_HOST: "{{ .Release.Name }}-elasticsearch"
+ELASTICSEARCH_PORT: 9200
+
+FORUM_HOST: "{{ .Release.Name }}-forum"
+FORUM_API_KEY: "forumapikey"
+
+MEMCACHED_HOST: "{{ .Release.Name }}-memcached"
+MEMCACHED_PORT: 11211
+
+MONGODB_HOST: "{{ .Release.Name }}-mongodb"
+MONGODB_DATABASE: "{{ .Release.Name }}-openedx"
+MONGODB_PORT: 27017
+MONGODB_USERNAME: ""
+MONGODB_PASSWORD: ""
+
+OPENEDX_MYSQL_DATABASE: "{{ .Release.Name }}-openedx"
+OPENEDX_MYSQL_USERNAME: openedx
+OPENEDX_MYSQL_PASSWORD: ""
+
+MYSQL_HOST: "{{ .Release.Name }}-mysql"
+MYSQL_PORT: 3306
+MYSQL_ROOT_USER: root
+MYSQL_ROOT_PASSWORD: ""
+
+NGINX_HTTP_PORT: 80
+NGINX_LMS_UPSTREAM_HOST: '{{ include "tutor.fullname" . }}-lms'
+NGINX_CMS_UPSTREAM_HOST: '{{ include "tutor.fullname" . }}-cms'
+NGINX_NOTES_UPSTREAM_HOST: '{{ include "tutor.fullname" . }}-notes'
+
+NOTES_SECRET_KEY: ""
+NOTES_OAUTH2_SECRET: ""
+NOTES_MYSQL_DATABASE: "{{ .Release.Name }}-notes"
+NOTES_MYSQL_USERNAME: notes
+NOTES_MYSQL_PASSWORD: ""
+
+RABBITMQ_HOST: "{{ .Release.Name }}-rabbitmq"
+RABBITMQ_USERNAME: ""
+RABBITMQ_PASSWORD: ""
+
+SMTP_HOST: "{{ .Release.Name }}-smtp"
+SMTP_PORT: 25
+SMTP_USERNAME: ""
+SMTP_PASSWORD: ""
+
+WEB_PROXY: false
+
+XQUEUE_SECRET_KEY: ""
+XQUEUE_AUTH_USERNAME: lms
+XQUEUE_AUTH_PASSWORD: ""
+XQUEUE_MYSQL_DATABASE: "{{ .Release.Name }}-xqueue"
+XQUEUE_MYSQL_USERNAME: xqueue
+XQUEUE_MYSQL_PASSWORD: ""
+
+
+openedx:
+  image:
+    pullPolicy: IfNotPresent
+
+lms:
+  replicaCount: 2
+  service:
+    type: ClusterIP
+    port: 8000
+
+cms:
+  replicaCount: 2
+  service:
+    type: ClusterIP
+    port: 8000
+
+forum:
+  replicaCount: 2
+  image:
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 4567
+
+nginx:
+  replicaCount: 2
+  image:
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+
+memcached:
+  image:
+    pullPolicy: IfNotPresent
+
+mysql:
+  generateSecret: false
+
+workers:
+  lms:
+    replicaCount: 1
+  cms:
+    replicaCount: 1
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+tutorConfig: {}

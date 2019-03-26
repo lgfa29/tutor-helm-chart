@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tutor.fullname" . }}-forum
+  labels:
+    app.kubernetes.io/component: forum
+    {{- include "tutor.common.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.forum.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: forum
+      {{- include "tutor.common.matchLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: forum
+        {{- include "tutor.common.matchLabels" . | nindent 8 }}
+      annotations:
+        checksum/forum-config: {{ include (print $.Template.BasePath "/forum-configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: forum
+          image: "{{ .Values.DOCKER_IMAGE_FORUM }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ template "tutor.fullname" . }}-forum
+          ports:
+            - name: http
+              containerPort: 4567

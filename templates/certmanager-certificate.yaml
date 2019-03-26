@@ -1,0 +1,29 @@
+{{- if .Values.activateHttps -}}
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: {{ include "tutor.domainname" . }}
+  labels:
+    app.kubernetes.io/component: certmanager
+    {{- include "tutor.common.labels" . | nindent 4 }}
+spec:
+  secretName: {{ include "tutor.domainname" . }}-tls
+  commonName: {{ .Values.LMS_HOST }}
+  dnsNames:
+    - {{ .Values.LMS_HOST }}
+    - {{ .Values.CMS_HOST }}
+    - notes.{{ .Values.LMS_HOST }}
+    - preview.{{ .Values.LMS_HOST }}
+  issuerRef:
+    kind: Issuer
+    name: {{ .Values.certmanagerIssuer }}
+  acme:
+    config:
+      - http01:
+          ingressClass: nginx
+        domains:
+          - {{ .Values.LMS_HOST }}
+          - {{ .Values.CMS_HOST }}
+          - notes.{{ .Values.LMS_HOST }}
+          - preview.{{ .Values.LMS_HOST }}
+{{- end -}}

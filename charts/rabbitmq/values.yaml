@@ -1,0 +1,23 @@
+# Default values for rabbitmq.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: rabbitmq
+  tag: "3.6.10"
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 5672
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

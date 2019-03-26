@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "tutor.fullname" . }}-forum
+  labels:
+    app.kubernetes.io/component: forum
+    {{- include "tutor.common.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.forum.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.forum.service.port }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/component: forum
+    {{- include "tutor.common.matchLabels" . | nindent 4 }}

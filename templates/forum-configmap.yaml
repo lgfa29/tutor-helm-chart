@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "tutor.fullname" . }}-forum
+data:
+  SINATRA_ENV: production
+  API_KEY: {{ .Values.FORUM_API_KEY }}
+  SEARCH_SERVER: "http://{{ tpl .Values.ELASTICSEARCH_HOST . }}:{{ .Values.ELASTICSEARCH_PORT }}"
+  MONGOHQ_URL: "mongodb://{{ tpl .Values.MONGODB_HOST . }}:{{ .Values.MONGODB_PORT }}/cs_comments_service"
+  WORKER_PROCESSES: "2"
+  LISTEN_PORT: "4567"

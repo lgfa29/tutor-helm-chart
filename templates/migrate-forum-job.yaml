@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "tutor.fullname" . }}-migrate-forum
+  labels:
+    app.kubernetes.io/component: migrate-forum
+    {{- include "tutor.common.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ include "tutor.fullname" . }}-migrate-forum
+      labels:
+        app.kubernetes.io/component: migrate-forum
+        {{- include "tutor.common.labels" . | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: migrate-forum
+          image: "{{ .Values.DOCKER_IMAGE_FORUM }}"
+          envFrom:
+            - configMapRef:
+                name: {{ template "tutor.fullname" . }}-forum
+          command: [ "/bin/bash" ]
+          args: ["-c", "bundle exec rake search:initialize && bundle exec rake search:rebuild_index"]

@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "tutor.fullname" . }}-migrate-cms
+  labels:
+    app.kubernetes.io/component: migrate-cms
+    {{- include "tutor.common.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-4" # slight lower than migrate-lms so they don't run a the same time
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ include "tutor.fullname" . }}-migrate-cms
+      labels:
+        app.kubernetes.io/component: migrate-cms
+        {{- include "tutor.common.labels" . | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      initContainers:
+        {{- include "tutor.config.container" . | nindent 8 }}
+      containers:
+        {{- include "tutor.openedx.migrate" (dict "Values" .Values "ServiceVariant" "cms") | nindent 8 }}
+      volumes:
+        - name: tutor-config
+          emptyDir: {}

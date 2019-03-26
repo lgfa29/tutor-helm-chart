@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "tutor.fullname" . }}-create-databases
+  labels:
+    app.kubernetes.io/component: create-databases
+    {{- include "tutor.common.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ include "tutor.fullname" . }}-create-databases
+      labels:
+        app.kubernetes.io/component: create-databases
+        {{- include "tutor.common.labels" . | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: create-openedx-database
+          image: "{{ .Values.DOCKER_IMAGE_OPENEDX }}"
+          imagePullPolicy: {{ .Values.openedx.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ template "tutor.fullname" . }}
+          env:
+            - name: TUTOR_MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: mysql-root-password
+                  name: {{ .Release.Name }}-mysql
+          command:
+            - "/bin/bash"
+            - "-c"
+            - 'mysql  --user "$TUTOR_MYSQL_ROOT_USER"
+                      --password=$TUTOR_MYSQL_ROOT_PASSWORD
+                      --host "$TUTOR_MYSQL_HOST"
+                      --port "$TUTOR_MYSQL_PORT"
+                      --execute "
+                        CREATE DATABASE IF NOT EXISTS $TUTOR_OPENEDX_MYSQL_DATABASE;
+                        GRANT ALL ON $TUTOR_OPENEDX_MYSQL_DATABASE.* TO \"$TUTOR_OPENEDX_MYSQL_USERNAME\"@\"%\" IDENTIFIED BY \"$TUTOR_OPENEDX_MYSQL_PASSWORD\";
+                      "'

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tutor.fullname" . }}-lms-workers
+  labels:
+    app.kubernetes.io/component: lms-workers
+    {{- include "tutor.common.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.workers.lms.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: lms-workers
+      {{- include "tutor.common.matchLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: lms-workers
+        {{- include "tutor.common.labels" . | nindent 8 }}
+      annotations:
+        checksum/tutor-config: {{ include (print $.Template.BasePath "/tutor-configmap.yaml") . | sha256sum }}
+    spec:
+      volumes:
+        - name: tutor-config
+          emptyDir: {}
+      initContainers:
+        {{- include "tutor.config.container" . | nindent 8 }}
+      containers:
+        - name: lms
+          image: "{{ .Values.DOCKER_IMAGE_OPENEDX }}"
+          imagePullPolicy: {{ .Values.openedx.image.pullPolicy }}
+          env:
+            - name: SERVICE_VARIANT
+              value: lms
+            - name: SETTINGS
+              value: tutor.production
+            - name: C_FORCE_ROOT # run celery tasks as root #nofear
+              value: "1"
+          command: ["./manage.py", "lms", "celery", "worker", "--loglevel=info", "--hostname=edx.lms.core.default.%%h", "--maxtasksperchild=100"]
+          volumeMounts:
+            - name: tutor-config
+              mountPath: /openedx/edx-platform/lms/envs/tutor/
+              subPath: env/apps/openedx/settings/lms
+            - name: tutor-config
+              mountPath: /openedx/config/
+              subPath: env/apps/openedx/config
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
