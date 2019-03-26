@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/component: create-databases
     {{- include "tutor.common.labels" . | nindent 4 }}
   annotations:
-    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook": post-install
     "helm.sh/hook-weight": "-10"
     "helm.sh/hook-delete-policy": hook-succeeded
 spec:

@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/component: migrate-cms
     {{- include "tutor.common.labels" . | nindent 4 }}
   annotations:
-    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook": post-install
     "helm.sh/hook-weight": "-4" # slight lower than migrate-lms so they don't run a the same time
     "helm.sh/hook-delete-policy": hook-succeeded
 spec:
